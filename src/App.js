@@ -59,6 +59,11 @@ function App() {
           {streak.minutes} minute{streak.minutes !== 1 ? 's' : ''}{' '}
           {streak.seconds} second{streak.seconds !== 1 ? 's' : ''}
         </p>
+        <img
+  src="/happyguy.png"
+  alt="Motivational Footer"
+  style={{ marginTop: '20px', maxWidth: '100%' }}
+/>
 
       </header>
     </div>
