@@ -7,7 +7,7 @@ import { useWindowSize } from '@react-hook/window-size' // optional helper
 
 function App() {
   const [streak, setStreak] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [showConfetti, setShowConfetti] = useState(true);
+  const [showConfetti] = useState(true);
   const [width, height] = useWindowSize(); // for fullscreen confetti
 
   useEffect(() => {
