@@ -52,7 +52,7 @@ function App() {
         {/* 🎉 Confetti */}
         {showConfetti && <Confetti width={width} height={height} />}
 
-        <h3>Keep going</h3>
+        <h3>Keep going!</h3>
         <p>
           Your Streak is {streak.days} day{streak.days !== 1 ? 's' : ''}{' '}
           {streak.hours} hour{streak.hours !== 1 ? 's' : ''}{' '}
