@@ -1,157 +1,165 @@
-import './App.css';
-import { useEffect, useState } from 'react';
-import { ref, set, push, onValue, serverTimestamp } from 'firebase/database';
-import { rtdb } from './firebase';
-import Confetti from 'react-confetti';
-import { useWindowSize } from '@react-hook/window-size';
+import "./App.css"
+import React, { useState, useEffect } from "react";
+import { ref, push, onValue, set } from "firebase/database";
+import { rtdb } from "./firebase"; // your firebase config
 
-function App() {
-  const [activeStreak, setActiveStreak] = useState(null);
+export default function App() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [formData, setFormData] = useState({ name: "", notes: "" });
+  const [activeStreaks, setActiveStreaks] = useState([]);
   const [pastStreaks, setPastStreaks] = useState([]);
-  const [formData, setFormData] = useState({ name: '', notes: '' });
-  const [elapsed, setElapsed] = useState({});
   const [showConfetti, setShowConfetti] = useState(false);
-  const [width, height] = useWindowSize();
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Load active streak
+  // Load active streaks
   useEffect(() => {
-    const activeRef = ref(rtdb, 'activeStreak');
-    const unsub = onValue(activeRef, (snap) => {
+    const activeRef = ref(rtdb, "activeStreaks");
+    return onValue(activeRef, (snap) => {
       const data = snap.val();
-      setActiveStreak(data || null);
+      if (data) {
+        setActiveStreaks(
+          Object.entries(data).map(([id, streak]) => ({ id, ...streak }))
+        );
+      } else {
+        setActiveStreaks([]);
+      }
     });
-    return () => unsub();
   }, []);
 
   // Load past streaks
   useEffect(() => {
-    const historyRef = ref(rtdb, 'pastStreaks');
-    const unsub = onValue(historyRef, (snap) => {
+    const pastRef = ref(rtdb, "pastStreaks");
+    return onValue(pastRef, (snap) => {
       const data = snap.val();
       if (data) {
-        setPastStreaks(Object.values(data).sort((a, b) => b.startAt - a.startAt));
+        setPastStreaks(
+          Object.values(data).sort((a, b) => b.endAt - a.endAt)
+        );
+      } else {
+        setPastStreaks([]);
       }
     });
-    return () => unsub();
   }, []);
 
-  // Update elapsed timer
-  useEffect(() => {
-    let interval;
-    if (activeStreak?.startAt) {
-      const updateElapsed = () => {
-        const now = Date.now();
-        const diff = now - activeStreak.startAt;
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        setElapsed({ days, hours, minutes, seconds });
-      };
-      updateElapsed();
-      interval = setInterval(updateElapsed, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [activeStreak]);
-
-  // Start new streak
+  // Handle starting new streak
   const handleStart = () => {
-    if (!formData.name.trim()) return alert('Please name your streak');
+    if (!formData.name.trim()) return alert("Please name your streak");
+
     const streak = {
       name: formData.name,
       notes: formData.notes,
       startAt: Date.now(),
     };
-    set(ref(rtdb, 'activeStreak'), streak);
-    setFormData({ name: '', notes: '' });
+
+    push(ref(rtdb, "activeStreaks"), streak);
+    setFormData({ name: "", notes: "" });
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 3000);
   };
 
-  // Reset streak → move to history
-  const handleReset = () => {
-    if (!activeStreak) return;
+  // Handle reset (moves to past streaks)
+  const handleReset = (id) => {
+    const streak = activeStreaks.find((s) => s.id === id);
+    if (!streak) return;
+
     const endedStreak = {
-      ...activeStreak,
+      ...streak,
       endAt: Date.now(),
-      durationMs: Date.now() - activeStreak.startAt,
+      durationMs: Date.now() - streak.startAt,
     };
-    push(ref(rtdb, 'pastStreaks'), endedStreak);
-    set(ref(rtdb, 'activeStreak'), null);
+
+    push(ref(rtdb, "pastStreaks"), endedStreak);
+    set(ref(rtdb, `activeStreaks/${id}`), null);
+  };
+
+  // Time formatter
+  const formatDuration = (ms) => {
+    const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
   };
 
   return (
-    <div className={`app-root ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
-      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <div className={`app-root ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
+      {/* Sidebar */}
+      <aside className={`sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
         <div className="sidebar-header">
           <button
             className="toggle-btn"
-            onClick={() => setIsCollapsed(prev => !prev)}
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           >
             ☰
           </button>
-          {!isCollapsed && <h2>Streak App</h2>}
+          {!sidebarCollapsed && <h2>Streaks</h2>}
         </div>
         <nav>
           <ul>
-            <li><span className="icon">🔥</span>{!isCollapsed && <span>Active</span>}</li>
-            <li><span className="icon">📜</span>{!isCollapsed && <span>History</span>}</li>
-            <li><span className="icon">⚙️</span>{!isCollapsed && <span>Settings</span>}</li>
+            <li><span className="icon">🏠</span> {!sidebarCollapsed && "Home"}</li>
+            <li><span className="icon">🔥</span> {!sidebarCollapsed && "Current"}</li>
+            <li><span className="icon">📜</span> {!sidebarCollapsed && "History"}</li>
           </ul>
         </nav>
       </aside>
 
+      {/* Main Content */}
       <main className="main-content">
-        {showConfetti && <Confetti width={width} height={height} />}
+        {/* Form */}
+        <section className="form-section">
+          <h3>Start a New Streak</h3>
+          <input
+            type="text"
+            placeholder="Streak name"
+            value={formData.name}
+            onChange={(e) =>
+              setFormData({ ...formData, name: e.target.value })
+            }
+          />
+          <textarea
+            placeholder="Notes (optional)"
+            value={formData.notes}
+            onChange={(e) =>
+              setFormData({ ...formData, notes: e.target.value })
+            }
+          />
+          <button onClick={handleStart}>Start</button>
+        </section>
 
-        {!activeStreak && (
-          <section className="form-section">
-            <h3>Start a new streak</h3>
-            <input
-              type="text"
-              placeholder="Streak name"
-              value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-            />
-            <textarea
-              placeholder="Notes (optional)"
-              value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-            />
-            <button onClick={handleStart}>Start Streak</button>
-          </section>
-        )}
-
-        {activeStreak && (
+        {/* Active Streaks */}
+        {activeStreaks.length > 0 && (
           <section className="active-section">
-            <h3>🔥 {activeStreak.name}</h3>
-            {activeStreak.notes && <p>{activeStreak.notes}</p>}
-            <p>
-              {elapsed.days}d {elapsed.hours}h {elapsed.minutes}m {elapsed.seconds}s
-            </p>
-            <button onClick={handleReset}>Reset Streak</button>
+            <h3>🔥 Current Streaks</h3>
+            {activeStreaks.map((streak) => {
+              const diff = Date.now() - streak.startAt;
+              return (
+                <div key={streak.id} className="streak-card">
+                  <h4>{streak.name}</h4>
+                  {streak.notes && <p>{streak.notes}</p>}
+                  <p>{formatDuration(diff)}</p>
+                  <button onClick={() => handleReset(streak.id)}>Reset</button>
+                </div>
+              );
+            })}
           </section>
         )}
 
+        {/* Past Streaks */}
         {pastStreaks.length > 0 && (
           <section className="history-section">
-            <h3>Past Streaks</h3>
-            <ul>
-              {pastStreaks.map((s, idx) => (
-                <li key={idx}>
-                  <strong>{s.name}</strong> — {Math.floor(s.durationMs / (1000*60*60*24))}d  
-                  <br />
-                  <small>{new Date(s.startAt).toLocaleString()} → {new Date(s.endAt).toLocaleString()}</small>
-                  {s.notes && <p>{s.notes}</p>}
-                </li>
-              ))}
-            </ul>
+            <h3>📜 Past Streaks</h3>
+            {pastStreaks.map((streak, i) => (
+              <div key={i} className="streak-card">
+                <h4>{streak.name}</h4>
+                {streak.notes && <p>{streak.notes}</p>}
+                <p>
+                  {formatDuration(streak.durationMs)} (Ended:{" "}
+                  {new Date(streak.endAt).toLocaleString()})
+                </p>
+              </div>
+            ))}
           </section>
         )}
       </main>
     </div>
   );
 }
-
-export default App;
