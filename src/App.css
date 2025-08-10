@@ -106,3 +106,56 @@ button {
 button:hover {
   background: #019ca3;
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 300px;
+  text-align: center;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.cancel-btn {
+  background: #ccc;
+  color: black;
+}
+
+.confirm-btn {
+  background: #d9534f;
+  color: white;
+}
+
+.cancel-btn, .confirm-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background: #b3b3b3;
+}
+
+.confirm-btn:hover {
+  background: #c9302c;
+}
+
