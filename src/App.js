@@ -19,7 +19,7 @@ function App() {
 
   const [activePage, setActivePage] = useState('home');
 
-  // Use exact class names that your CSS expects
+  // Load theme from localStorage
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light-mode');
 
   useEffect(() => {
@@ -119,8 +119,11 @@ function App() {
     return Math.max(0, Math.min(100, (done / total) * 100));
   };
 
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark-mode' ? 'light-mode' : 'dark-mode'));
+  };
+
   return (
-    // NOTE: theme class is applied to the app-root div
     <div className={`app-root ${theme} ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
@@ -275,14 +278,15 @@ function App() {
         {activePage === 'settings' && (
           <section className="settings-section">
             <h3>⚙️ Settings</h3>
-            <div>
-              <label>
+            <div className="theme-toggle">
+              <span>{theme === 'dark-mode' ? '🌙 Dark Mode' : '☀️ Light Mode'}</span>
+              <label className="switch">
                 <input
                   type="checkbox"
                   checked={theme === 'dark-mode'}
-                  onChange={() => setTheme(prev => (prev === 'dark-mode' ? 'light-mode' : 'dark-mode'))}
+                  onChange={toggleTheme}
                 />
-                Enable Dark Mode
+                <span className="slider round"></span>
               </label>
             </div>
           </section>
