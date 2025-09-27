@@ -17,8 +17,10 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [streakToReset, setStreakToReset] = useState(null);
 
-  const [activePage, setActivePage] = useState('home'); // NEW
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light'); // NEW
+  const [activePage, setActivePage] = useState('home');
+
+  // Use exact class names that your CSS expects
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light-mode');
 
   useEffect(() => {
     const activeRef = ref(rtdb, 'activeStreaks');
@@ -42,6 +44,8 @@ function App() {
       const data = snap.val();
       if (data) {
         setPastStreaks(Object.values(data).sort((a, b) => b.startAt - a.startAt));
+      } else {
+        setPastStreaks([]);
       }
     });
   }, []);
@@ -65,8 +69,8 @@ function App() {
     return () => clearInterval(interval);
   }, [activeStreaks]);
 
+  // persist theme
   useEffect(() => {
-    document.body.className = theme; // apply theme
     localStorage.setItem('theme', theme);
   }, [theme]);
 
@@ -116,7 +120,8 @@ function App() {
   };
 
   return (
-    <div className={`app-root ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
+    // NOTE: theme class is applied to the app-root div
+    <div className={`app-root ${theme} ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <button
@@ -274,8 +279,8 @@ function App() {
               <label>
                 <input
                   type="checkbox"
-                  checked={theme === 'dark'}
-                  onChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  checked={theme === 'dark-mode'}
+                  onChange={() => setTheme(prev => (prev === 'dark-mode' ? 'light-mode' : 'dark-mode'))}
                 />
                 Enable Dark Mode
               </label>
