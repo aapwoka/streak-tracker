@@ -19,7 +19,7 @@ function App() {
 
   const [activePage, setActivePage] = useState('home');
 
-  // Load theme from localStorage
+  // Loading theme from localStorage
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light-mode');
 
   useEffect(() => {
