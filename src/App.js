@@ -69,7 +69,7 @@ function App() {
     return () => clearInterval(interval);
   }, [activeStreaks]);
 
-  // persist theme
+  // persisting theme
   useEffect(() => {
     localStorage.setItem('theme', theme);
   }, [theme]);
