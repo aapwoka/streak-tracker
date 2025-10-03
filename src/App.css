@@ -1,25 +1,33 @@
 /* ========================
-   ORIGINAL BASE STYLES
+   BASE STYLES
    ======================== */
 * {
   box-sizing: border-box;
 }
 
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  height: 100%;
+}
+
 .app-root {
   display: flex;
   min-height: 100vh;
-  background: #f5f6fa;
-  font-family: Arial, sans-serif;
   transition: background 0.3s, color 0.3s;
 }
 
+/* ========================
+   SIDEBAR
+   ======================== */
 .sidebar {
   background: #222831;
   color: white;
   width: 240px;
-  transition: width 0.3s ease, background 0.3s, color 0.3s;
   display: flex;
   flex-direction: column;
+  transition: width 0.3s ease, background 0.3s, color 0.3s;
 }
 
 .sidebar.collapsed {
@@ -47,6 +55,7 @@
 nav ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 nav li {
@@ -54,6 +63,7 @@ nav li {
   align-items: center;
   padding: 12px 16px;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 nav li:hover {
@@ -66,13 +76,16 @@ nav li:hover {
   font-size: 18px;
 }
 
+/* ========================
+   MAIN CONTENT
+   ======================== */
 .main-content {
   flex: 1;
   padding: 20px;
   transition: background 0.3s, color 0.3s;
 }
 
-.form-section, .active-section, .history-section {
+.form-section, .active-section, .history-section, .settings-section {
   background: white;
   padding: 16px;
   border-radius: 8px;
@@ -99,6 +112,8 @@ input, textarea {
   margin: 8px 0;
   padding: 8px;
   max-width: 100%;
+  border-radius: 5px;
+  border: 1px solid #ccc;
   transition: background 0.3s, color 0.3s, border 0.3s;
 }
 
@@ -116,13 +131,16 @@ button:hover {
   background: #019ca3;
 }
 
+/* ========================
+   MODALS
+   ======================== */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0,0,0,0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -170,46 +188,41 @@ button:hover {
 }
 
 /* ========================
-   THEME OVERRIDES
+   THEME
    ======================== */
-
-/* Light mode (default) */
 .app-root.light-mode {
   background: #f5f6fa;
   color: #222;
 }
 
-/* Dark mode */
 .app-root.dark-mode {
   background: #121212;
   color: #e5e5e5;
 }
 
-/* Sidebar dark mode */
 .app-root.dark-mode .sidebar {
   background: #1e1e1e;
   color: #e5e5e5;
 }
+
 .app-root.dark-mode nav li:hover {
   background: #333;
 }
 
-/* Content sections */
 .app-root.dark-mode .form-section,
 .app-root.dark-mode .active-section,
-.app-root.dark-mode .history-section {
+.app-root.dark-mode .history-section,
+.app-root.dark-mode .settings-section {
   background: #1f1f1f;
   color: #e5e5e5;
 }
 
-/* Cards */
 .app-root.dark-mode .streak-card {
   background: #2a2a2a;
   border: 1px solid #444;
   color: #e5e5e5;
 }
 
-/* Inputs */
 .app-root.dark-mode input,
 .app-root.dark-mode textarea {
   background: #2a2a2a;
@@ -217,23 +230,22 @@ button:hover {
   color: #fff;
 }
 
-/* Buttons */
 .app-root.dark-mode button {
   background: #3399ff;
 }
+
 .app-root.dark-mode button:hover {
   background: #1a75d1;
 }
 
-/* Modal */
 .app-root.dark-mode .modal {
   background: #2a2a2a;
   color: #e5e5e5;
 }
 
-/* ... keep your existing CSS ... */
-
-/* Toggle Switch */
+/* ========================
+   TOGGLE SWITCH
+   ======================== */
 .theme-toggle {
   display: flex;
   align-items: center;
@@ -282,4 +294,110 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(26px);
+}
+
+/* ========================
+   PROFILE SECTION
+   ======================== */
+.profile-section {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.profile-section h4 {
+  margin-bottom: 10px;
+}
+
+.profile-section input {
+  margin: 6px 0;
+}
+
+.profile-section button {
+  margin-top: 10px;
+  background: #007bff;
+}
+
+.profile-section button:hover {
+  background: #0056b3;
+}
+
+.profile-pic {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* ========================
+   STREAK PROGRESS BAR
+   ======================== */
+.progress-container {
+  width: 100%;
+  background: #eee;
+  border-radius: 5px;
+  height: 8px;
+  margin: 6px 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #00adb5;
+  border-radius: 5px;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+/* ========================
+   AUTH FORM
+   ======================== */
+.auth-container {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.auth-container input {
+  margin: 8px 0;
+  padding: 10px;
+}
+
+.auth-container button {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.google-btn {
+  background: #db4437;
+}
+
+.google-btn:hover {
+  background: #c33d2e;
+}
+
+.switch-auth {
+  color: #555;
+  cursor: pointer;
+  margin-top: 10px;
+  display: block;
+}
+
+.divider {
+  margin: 15px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+/* ========================
+   LOGOUT BUTTON
+   ======================== */
+.logout-btn {
+  margin-top: 20px;
+  background: #d9534f;
+}
+
+.logout-btn:hover {
+  background: #c9302c;
 }
