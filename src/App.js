@@ -30,7 +30,7 @@ function App() {
   useEffect(() => localStorage.setItem('theme', theme), [theme]);
   const toggleTheme = () => setTheme(prev => (prev === 'dark-mode' ? 'light-mode' : 'dark-mode'));
 
-  // AUTH
+  // AUTHENTICATION
   const [user, setUser] = useState(null);
   const [authMode, setAuthMode] = useState("login");
   const [email, setEmail] = useState("");
